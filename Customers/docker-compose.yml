@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+  nginx:
+    build:
+      context: ./vm/nginx
+    volumes:
+      - ./src:/var/www/html
+      - ./vm/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./vm/nginx/sites/:/etc/nginx/sites-available
+      - ./vm/nginx/conf.d/:/etc/nginx/conf.d
+    depends_on:
+      - php-fpm
+    ports:
+      - "8089:80"
+      - "443:443"
+  
+  php-fpm:
+    build:
+      context: ./vm/php-fpm
+    volumes:
+      - ./src:/var/www/html
+
+  database:
+    build:
+      context: ./vm/database
+    environment:
+      - MYSQL_DATABASE=smc
+      - MYSQL_USER=smcpoc
+      - MYSQL_PASSWORD=smcpoc
+      - MYSQL_ROOT_PASSWORD=toor
+
+  composer:
+    image: "composer"
+    command: install
+    volumes:
+      - ./src:/app
